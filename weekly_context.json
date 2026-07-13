@@ -1,0 +1,31 @@
+{
+  "week_of": "2026-07-13",
+  "source": "КиберХора · Kronos AI (дайджест 10.07)",
+  "gld_to_xau": 10.91,
+  "gold": {
+    "rating": "HOLD",
+    "lean": "bullish",
+    "chance_up_30d": 65,
+    "forecast_30d_pct": 2.9,
+    "median_30d_pct": 1.3,
+    "trend": "BEAR",
+    "macd": "BULL",
+    "rsi": "NEUTRAL",
+    "confidence": "high",
+    "note": "Смесени сигнали — изчаквай по-ясна посока",
+    "targets_gld": { "bear": 369.90, "base": 381.91, "bull": 410.50 },
+    "targets_xau": { "bear": 4036, "base": 4167, "bull": 4478 }
+  },
+  "market": {
+    "regime": "risk-on, но геополитическо напрежение (US-Iran)",
+    "vix": 15.0,
+    "sp500_week_pct": 1.2,
+    "overall": "5 SELL · 6 HOLD · 5 BUY — Kronos гледа предимно надолу"
+  },
+  "daily": {
+    "date": "",
+    "feel": "",
+    "note": "",
+    "watch": ""
+  }
+}

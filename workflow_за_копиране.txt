@@ -1,0 +1,35 @@
+name: AERO Gold Bot
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 5-21 * * 1-5'
+    - cron: '*/30 22,23,0-4 * * 1-5'
+permissions:
+  contents: write
+concurrency:
+  group: aero-bot
+  cancel-in-progress: false
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - name: run bot
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python live_bot.py --send --stats backtest_stats.json --out live
+      - name: save state
+        run: |
+          git config user.name "aero-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A live/ || true
+          git commit -m "state" || echo "nothing"
+          git pull --rebase --autostash || true
+          git push || echo "skip"

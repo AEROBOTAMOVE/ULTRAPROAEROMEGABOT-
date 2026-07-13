@@ -1,0 +1,680 @@
+{
+  "1мин": {
+    "long": {
+      "premium": {
+        "win": 59.1,
+        "net": 3.15,
+        "per_day": 247.6,
+        "per_week": 1238.0
+      },
+      "strong": {
+        "win": 50.3,
+        "net": -0.43,
+        "per_day": 71.4,
+        "per_week": 357.0
+      },
+      "medium": {
+        "win": 57.2,
+        "net": 2.34,
+        "per_day": 432.1,
+        "per_week": 2160.5
+      },
+      "weak": {
+        "win": 48.4,
+        "net": -1.19,
+        "per_day": 628.7,
+        "per_week": 3143.5
+      }
+    },
+    "short": {
+      "premium": {
+        "win": 48.8,
+        "net": -1.01,
+        "per_day": 273.5,
+        "per_week": 1367.5
+      },
+      "strong": {
+        "win": 46.2,
+        "net": -2.29,
+        "per_day": 61.9,
+        "per_week": 309.5
+      },
+      "medium": {
+        "win": 51.0,
+        "net": -0.12,
+        "per_day": 329.2,
+        "per_week": 1646.0
+      },
+      "weak": {
+        "win": 39.7,
+        "net": -4.68,
+        "per_day": 715.2,
+        "per_week": 3576.0
+      }
+    }
+  },
+  "5м": {
+    "long": {
+      "premium": {
+        "win": 59.1,
+        "net": 3.15,
+        "per_day": 49.5,
+        "per_week": 247.5
+      },
+      "strong": {
+        "win": 50.3,
+        "net": -0.43,
+        "per_day": 14.3,
+        "per_week": 71.5
+      },
+      "medium": {
+        "win": 57.2,
+        "net": 2.34,
+        "per_day": 86.4,
+        "per_week": 432.0
+      },
+      "weak": {
+        "win": 48.4,
+        "net": -1.19,
+        "per_day": 125.7,
+        "per_week": 628.5
+      }
+    },
+    "short": {
+      "premium": {
+        "win": 48.8,
+        "net": -1.01,
+        "per_day": 54.7,
+        "per_week": 273.5
+      },
+      "strong": {
+        "win": 46.2,
+        "net": -2.29,
+        "per_day": 12.4,
+        "per_week": 62.0
+      },
+      "medium": {
+        "win": 51.0,
+        "net": -0.12,
+        "per_day": 65.8,
+        "per_week": 329.0
+      },
+      "weak": {
+        "win": 39.7,
+        "net": -4.68,
+        "per_day": 143.0,
+        "per_week": 715.0
+      }
+    }
+  },
+  "15м": {
+    "long": {
+      "premium": {
+        "win": 59.1,
+        "net": 3.15,
+        "per_day": 16.5,
+        "per_week": 82.5
+      },
+      "strong": {
+        "win": 50.3,
+        "net": -0.43,
+        "per_day": 4.8,
+        "per_week": 24.0
+      },
+      "medium": {
+        "win": 57.2,
+        "net": 2.34,
+        "per_day": 28.8,
+        "per_week": 144.0
+      },
+      "weak": {
+        "win": 48.4,
+        "net": -1.19,
+        "per_day": 41.9,
+        "per_week": 209.5
+      }
+    },
+    "short": {
+      "premium": {
+        "win": 48.8,
+        "net": -1.01,
+        "per_day": 18.2,
+        "per_week": 91.0
+      },
+      "strong": {
+        "win": 46.2,
+        "net": -2.29,
+        "per_day": 4.1,
+        "per_week": 20.5
+      },
+      "medium": {
+        "win": 51.0,
+        "net": -0.12,
+        "per_day": 21.9,
+        "per_week": 109.5
+      },
+      "weak": {
+        "win": 39.7,
+        "net": -4.68,
+        "per_day": 47.7,
+        "per_week": 238.5
+      }
+    }
+  },
+  "30м": {
+    "long": {
+      "premium": {
+        "win": 59.1,
+        "net": 3.15,
+        "per_day": 8.3,
+        "per_week": 41.5
+      },
+      "strong": {
+        "win": 50.3,
+        "net": -0.43,
+        "per_day": 2.4,
+        "per_week": 12.0
+      },
+      "medium": {
+        "win": 57.2,
+        "net": 2.34,
+        "per_day": 14.4,
+        "per_week": 72.0
+      },
+      "weak": {
+        "win": 48.4,
+        "net": -1.19,
+        "per_day": 21.0,
+        "per_week": 105.0
+      }
+    },
+    "short": {
+      "premium": {
+        "win": 48.8,
+        "net": -1.01,
+        "per_day": 9.1,
+        "per_week": 45.5
+      },
+      "strong": {
+        "win": 46.2,
+        "net": -2.29,
+        "per_day": 2.1,
+        "per_week": 10.5
+      },
+      "medium": {
+        "win": 51.0,
+        "net": -0.12,
+        "per_day": 11.0,
+        "per_week": 55.0
+      },
+      "weak": {
+        "win": 39.7,
+        "net": -4.68,
+        "per_day": 23.8,
+        "per_week": 119.0
+      }
+    }
+  },
+  "1час": {
+    "long": {
+      "premium": {
+        "win": 59.1,
+        "net": 3.15,
+        "per_day": 4.1,
+        "per_week": 20.5
+      },
+      "strong": {
+        "win": 50.3,
+        "net": -0.43,
+        "per_day": 1.2,
+        "per_week": 6.0
+      },
+      "medium": {
+        "win": 57.2,
+        "net": 2.34,
+        "per_day": 7.2,
+        "per_week": 36.0
+      },
+      "weak": {
+        "win": 48.4,
+        "net": -1.19,
+        "per_day": 10.5,
+        "per_week": 52.5
+      }
+    },
+    "short": {
+      "premium": {
+        "win": 48.8,
+        "net": -1.01,
+        "per_day": 4.6,
+        "per_week": 23.0
+      },
+      "strong": {
+        "win": 46.2,
+        "net": -2.29,
+        "per_day": 1.0,
+        "per_week": 5.0
+      },
+      "medium": {
+        "win": 51.0,
+        "net": -0.12,
+        "per_day": 5.5,
+        "per_week": 27.5
+      },
+      "weak": {
+        "win": 39.7,
+        "net": -4.68,
+        "per_day": 11.9,
+        "per_week": 59.5
+      }
+    }
+  },
+  "4час": {
+    "long": {
+      "premium": {
+        "win": 59.1,
+        "net": 3.15,
+        "per_day": 1.1,
+        "per_week": 5.5
+      },
+      "strong": {
+        "win": 50.3,
+        "net": -0.43,
+        "per_day": 0.3,
+        "per_week": 1.5
+      },
+      "medium": {
+        "win": 57.2,
+        "net": 2.34,
+        "per_day": 1.9,
+        "per_week": 9.5
+      },
+      "weak": {
+        "win": 48.4,
+        "net": -1.19,
+        "per_day": 2.7,
+        "per_week": 13.5
+      }
+    },
+    "short": {
+      "premium": {
+        "win": 48.8,
+        "net": -1.01,
+        "per_day": 1.2,
+        "per_week": 6.0
+      },
+      "strong": {
+        "win": 46.2,
+        "net": -2.29,
+        "per_day": 0.3,
+        "per_week": 1.5
+      },
+      "medium": {
+        "win": 51.0,
+        "net": -0.12,
+        "per_day": 1.4,
+        "per_week": 7.0
+      },
+      "weak": {
+        "win": 39.7,
+        "net": -4.68,
+        "per_day": 3.1,
+        "per_week": 15.5
+      }
+    }
+  },
+  "1ден": {
+    "long": {
+      "premium": {
+        "win": 59.1,
+        "net": 3.15,
+        "per_day": 0.2,
+        "per_week": 1.0
+      },
+      "strong": {
+        "win": 50.3,
+        "net": -0.43,
+        "per_day": 0.1,
+        "per_week": 0.5
+      },
+      "medium": {
+        "win": 57.2,
+        "net": 2.34,
+        "per_day": 0.3,
+        "per_week": 1.5
+      },
+      "weak": {
+        "win": 48.4,
+        "net": -1.19,
+        "per_day": 0.5,
+        "per_week": 2.5
+      }
+    },
+    "short": {
+      "premium": {
+        "win": 48.8,
+        "net": -1.01,
+        "per_day": 0.2,
+        "per_week": 1.0
+      },
+      "strong": {
+        "win": 46.2,
+        "net": -2.29,
+        "per_day": 0.0,
+        "per_week": 0.0
+      },
+      "medium": {
+        "win": 51.0,
+        "net": -0.12,
+        "per_day": 0.2,
+        "per_week": 1.0
+      },
+      "weak": {
+        "win": 39.7,
+        "net": -4.68,
+        "per_day": 0.5,
+        "per_week": 2.5
+      }
+    }
+  },
+  "tp_hits": {
+    "long": {
+      "premium": {
+        "tp1": 70.8,
+        "tp2": 67.4,
+        "tp3": 58.9
+      },
+      "strong": {
+        "tp1": 63.4,
+        "tp2": 58.7,
+        "tp3": 50.3
+      },
+      "medium": {
+        "tp1": 70.3,
+        "tp2": 64.8,
+        "tp3": 56.8
+      },
+      "weak": {
+        "tp1": 62.7,
+        "tp2": 57.0,
+        "tp3": 47.4
+      }
+    },
+    "short": {
+      "premium": {
+        "tp1": 63.1,
+        "tp2": 58.0,
+        "tp3": 47.8
+      },
+      "strong": {
+        "tp1": 66.3,
+        "tp2": 58.8,
+        "tp3": 44.1
+      },
+      "medium": {
+        "tp1": 67.1,
+        "tp2": 60.5,
+        "tp3": 50.3
+      },
+      "weak": {
+        "tp1": 56.3,
+        "tp2": 49.3,
+        "tp3": 39.4
+      }
+    }
+  },
+  "regime": {
+    "short_bear_trend": {
+      "premium": {
+        "win": 53.6,
+        "net": 0.96,
+        "n": 658
+      },
+      "strong": {
+        "win": 47.1,
+        "net": -1.94,
+        "n": 157
+      },
+      "medium": {
+        "win": 52.4,
+        "net": 0.5,
+        "n": 737
+      },
+      "weak": {
+        "win": 44.9,
+        "net": -2.64,
+        "n": 497
+      }
+    },
+    "short_bull_trend": {
+      "premium": {
+        "win": 43.3,
+        "net": -3.26,
+        "n": 575
+      },
+      "strong": {
+        "win": 45.1,
+        "net": -2.73,
+        "n": 122
+      },
+      "medium": {
+        "win": 49.7,
+        "net": -0.73,
+        "n": 747
+      },
+      "weak": {
+        "win": 38.8,
+        "net": -5.06,
+        "n": 2727
+      }
+    },
+    "long_low_vol": {
+      "premium": {
+        "win": 60.9,
+        "net": 3.88,
+        "n": 670
+      },
+      "strong": {
+        "win": 53.3,
+        "net": 0.77,
+        "n": 167
+      },
+      "medium": {
+        "win": 59.2,
+        "net": 3.11,
+        "n": 1048
+      },
+      "weak": {
+        "win": 46.4,
+        "net": -2.0,
+        "n": 1442
+      }
+    },
+    "long_high_vol": {
+      "premium": {
+        "win": 56.5,
+        "net": 2.04,
+        "n": 446
+      },
+      "strong": {
+        "win": 47.1,
+        "net": -1.71,
+        "n": 155
+      },
+      "medium": {
+        "win": 55.0,
+        "net": 1.45,
+        "n": 900
+      },
+      "weak": {
+        "win": 50.4,
+        "net": -0.35,
+        "n": 1392
+      }
+    }
+  },
+  "ma_bounce": {
+    "long": {
+      "ma50": {
+        "win": 62.8,
+        "net": 4.64,
+        "n": 470,
+        "combo_win": 62.3,
+        "combo_net": 4.67,
+        "combo_n": 69
+      },
+      "ma200": {
+        "win": 61.3,
+        "net": 3.69,
+        "n": 186,
+        "combo_win": 72.7,
+        "combo_net": 9.33,
+        "combo_n": 22
+      }
+    },
+    "short": {
+      "ma50": {
+        "win": 62.7,
+        "net": 4.55,
+        "n": 421,
+        "combo_win": 63.6,
+        "combo_net": 4.9,
+        "combo_n": 99
+      },
+      "ma200": {
+        "win": 57.0,
+        "net": 2.41,
+        "n": 193,
+        "combo_win": 63.8,
+        "combo_net": 5.65,
+        "combo_n": 47
+      }
+    }
+  },
+  "speed": {
+    "long": {
+      "tp1_rate": 78.4,
+      "median_h": 14.2,
+      "within_1d_pct": 50.1,
+      "n": 1116
+    },
+    "short": {
+      "tp1_rate": 72.6,
+      "median_h": 14.0,
+      "within_1d_pct": 47.2,
+      "n": 1234
+    }
+  },
+  "fresh": {
+    "long": {
+      "fresh": {
+        "win": 67.6,
+        "net": 6.57,
+        "n": 476
+      },
+      "day1": {
+        "win": 71.0,
+        "net": 7.92,
+        "n": 224
+      },
+      "ultra": {
+        "win": 74.1,
+        "net": 9.23,
+        "n": 216
+      },
+      "stale": {
+        "win": 52.8,
+        "net": 0.6,
+        "n": 640
+      }
+    },
+    "short": {
+      "fresh": {
+        "win": 52.2,
+        "net": 0.39,
+        "n": 464
+      },
+      "day1": {
+        "win": 53.1,
+        "net": 0.76,
+        "n": 211
+      },
+      "ultra": {
+        "win": 50.9,
+        "net": 0.04,
+        "n": 167
+      },
+      "stale": {
+        "win": 46.8,
+        "net": -1.86,
+        "n": 769
+      }
+    }
+  },
+  "silver": {
+    "long": {
+      "premium": {
+        "win": 57.3,
+        "net": 0.053,
+        "n": 926
+      },
+      "strong": {
+        "win": 50.8,
+        "net": -0.019,
+        "n": 189
+      },
+      "medium": {
+        "win": 53.2,
+        "net": 0.004,
+        "n": 1376
+      },
+      "weak": {
+        "win": 49.8,
+        "net": -0.034,
+        "n": 2520
+      },
+      "fresh": {
+        "win": 62.4,
+        "net": 0.111,
+        "n": 370
+      },
+      "stale": {
+        "win": 54.0,
+        "net": 0.014,
+        "n": 556
+      }
+    },
+    "short": {
+      "premium": {
+        "win": 49.8,
+        "net": -0.032,
+        "n": 1010
+      },
+      "strong": {
+        "win": 44.6,
+        "net": -0.083,
+        "n": 213
+      },
+      "medium": {
+        "win": 50.1,
+        "net": -0.027,
+        "n": 1284
+      },
+      "weak": {
+        "win": 43.3,
+        "net": -0.103,
+        "n": 2504
+      },
+      "fresh": {
+        "win": 51.8,
+        "net": -0.008,
+        "n": 398
+      },
+      "stale": {
+        "win": 48.5,
+        "net": -0.047,
+        "n": 612
+      }
+    }
+  }
+}
