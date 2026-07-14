@@ -203,19 +203,29 @@ def _levels_silver(entry, direction):
 
 
 # ---------- съобщения ----------
-def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=None, regime=None):
+def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=None, regime=None, open_trade=None):
     direction = best[1]; tier_key = best[3]; tname = best[4]
     dcol = "🟢" if direction == "long" else "🔴"
     dword = "LONG ⬆️" if direction == "long" else "SHORT ⬇️"
-    lv = _levels(price, direction)
+    # има ли ВЕЧЕ отворена сделка в същата посока → картата е опресняване, не нов вход
+    lv = open_trade["levels"] if open_trade else _levels(price, direction)
+    entry = open_trade["entry"] if open_trade else price
+    hit = (open_trade or {}).get("hit", {})
+    def mk(k): return "  ✅ <b>ударен</b>" if hit.get(k) else ""
     th = stats.get("tp_hits", {}).get(direction, {}).get(tier_key, {})
     risk_amt = balance * risk_pct / 100.0; oz = risk_amt / SL_D; lots = round(oz / 100.0, 3)
     L = [f"{dcol} <b>AERO ЗЛАТО · {tname} {dword}</b> {dcol}", "━━━━━━━━━━━━━━━━━━",
-         f"🥇 <b>XAUUSD</b> · сега <code>${price:,.2f}</code> · 🕐 {_sofia()} София", "",
-         f"📍 <b>ВХОД:</b>   <code>${price:,.2f}</code>",
-         f"🎯 <b>ТП1</b> (75п):   <code>${lv['tp1']:,.2f}</code>  <i>{th.get('tp1','?')}% удрян</i>",
-         f"🎯 <b>ТП2</b> (120п):  <code>${lv['tp2']:,.2f}</code>  <i>{th.get('tp2','?')}%</i>",
-         f"🏆 <b>ТП3</b> (200п):  <code>${lv['tp3']:,.2f}</code>  <i>{th.get('tp3','?')}%</i>",
+         f"🥇 <b>XAUUSD</b> · сега <code>${price:,.2f}</code> · 🕐 {_sofia()} София",
+         "ℹ️ <i>Цена = фючърс GC=F (~10-15 мин закъснение; спотът при брокера обичайно е с $3-8 по-нисък) → смятай ТП/СТОП като ОТМЕСТВАНИЯ в пипсове от ТВОЯТА цена на входа</i>", ""]
+    if open_trade:
+        op = f"{open_trade['opened'][:10]} {_sofia(open_trade['opened'])} София"
+        L += [f"📌 <b>СЪЩИЯТ СИГНАЛ ПРОДЪЛЖАВА</b> — дневно опресняване, <b>НЕ нов вход</b>.",
+              f"📍 <b>Следим сделката от:</b> <code>${entry:,.2f}</code> <i>(отворена {op})</i>"]
+    else:
+        L.append(f"📍 <b>ВХОД:</b>   <code>${entry:,.2f}</code>")
+    L += [f"🎯 <b>ТП1</b> (75п):   <code>${lv['tp1']:,.2f}</code>  <i>{th.get('tp1','?')}% удрян</i>{mk('tp1')}",
+         f"🎯 <b>ТП2</b> (120п):  <code>${lv['tp2']:,.2f}</code>  <i>{th.get('tp2','?')}%</i>{mk('tp2')}",
+         f"🏆 <b>ТП3</b> (200п):  <code>${lv['tp3']:,.2f}</code>  <i>{th.get('tp3','?')}%</i>{mk('tp3')}",
          f"🛑 <b>СТОП</b> (200п): <code>${lv['sl']:,.2f}</code>", ""]
     spd = stats.get("speed", {}).get(direction, {})
     if spd.get("n"):
@@ -377,18 +387,25 @@ def _weekly_lines(weekly, direction):
         return []
 
 
-def _silver_msg(direction, score, tname, tier_key, price, stats, streak_n, balance, risk_pct):
+def _silver_msg(direction, score, tname, tier_key, price, stats, streak_n, balance, risk_pct, open_trade=None):
     """🥈 СРЕБРО (XAGUSD) — втори инструмент, дневно-задвижван сигнал."""
     dcol = "🟢" if direction == "long" else "🔴"
     dword = "LONG ⬆️" if direction == "long" else "SHORT ⬇️"
-    lv = _levels_silver(price, direction)
+    lv = open_trade["levels"] if open_trade else _levels_silver(price, direction)
+    entry = open_trade["entry"] if open_trade else price
     sv = stats.get("silver", {}).get(direction, {})
     st = sv.get(tier_key, {})
     risk_amt = balance * risk_pct / 100.0; oz = risk_amt / S_SL
     L = [f"{dcol} <b>🥈 СРЕБРО · {tname} {dword}</b> {dcol}", "━━━━━━━━━━━━━━━━━━",
-         f"<b>XAGUSD</b> · сега <code>${price:,.2f}</code> · 🕐 {_sofia()} София", "",
-         f"📍 <b>ВХОД:</b>   <code>${price:,.2f}</code>",
-         f"🎯 <b>ТП1:</b>  <code>${lv['tp1']:,.2f}</code>  <i>(±${S_TPS[0]:.2f})</i>",
+         f"<b>XAGUSD</b> · сега <code>${price:,.2f}</code> · 🕐 {_sofia()} София",
+         "ℹ️ <i>Цена = фючърс SI=F (~10-15 мин закъснение) → ползвай отместванията от твоята цена</i>", ""]
+    if open_trade:
+        op = f"{open_trade['opened'][:10]} {_sofia(open_trade['opened'])} София"
+        L += [f"📌 <b>СЪЩИЯТ СИГНАЛ ПРОДЪЛЖАВА</b> — опресняване, <b>НЕ нов вход</b>.",
+              f"📍 <b>Следим сделката от:</b> <code>${entry:,.2f}</code> <i>(отворена {op})</i>"]
+    else:
+        L.append(f"📍 <b>ВХОД:</b>   <code>${entry:,.2f}</code>")
+    L += [f"🎯 <b>ТП1:</b>  <code>${lv['tp1']:,.2f}</code>  <i>(±${S_TPS[0]:.2f})</i>",
          f"🎯 <b>ТП2:</b>  <code>${lv['tp2']:,.2f}</code>",
          f"🏆 <b>ТП3:</b>  <code>${lv['tp3']:,.2f}</code>  <i>(±${S_TPS[2]:.2f})</i>",
          f"🛑 <b>СТОП:</b> <code>${lv['sl']:,.2f}</code>", "",
@@ -454,10 +471,12 @@ def track_trade(trade, bars, now_price, now_utc):
     since = pd.Timestamp(trade.get("checked", trade["opened"]))
     lv = trade["levels"]; d = trade["direction"]
     idx = bars.index if bars is not None else []
-    for ts in idx:
+    last_ts = since          # часовникът следва ПОСЛЕДНИЯ обработен БАР (не стенното време!),
+    for ts in idx:           # иначе закъснелите Yahoo барове се прескачат завинаги
         if ts <= since:
             continue
         hi = float(bars.loc[ts, "High"]); lo = float(bars.loc[ts, "Low"])
+        last_ts = ts
         sl_hit = (lo <= lv["sl"]) if d == "long" else (hi >= lv["sl"])
         if sl_hit:                                   # консервативно: стопът първи
             events.append(("sl", lv["sl"])); trade["status"] = "closed_sl"
@@ -476,7 +495,7 @@ def track_trade(trade, bars, now_price, now_utc):
         age = (pd.Timestamp(now_utc) - pd.Timestamp(trade["opened"])).days
         if age >= 30:
             events.append(("time", now_price)); trade["status"] = "closed_time"
-    trade["checked"] = str(now_utc)
+    trade["checked"] = str(last_ts)      # до последния РЕАЛЕН бар — нищо не се губи
     return (None if trade["status"] != "open" else trade), events
 
 
@@ -492,7 +511,7 @@ def main():
 
     import time
     print("дърпам дневни данни (злато/GDX/DXY/лихви)...")
-    gold_d = _yf("GC=F", "2y", "1d"); time.sleep(1.2)
+    gold_d = _yf("GC=F", "3y", "1d"); time.sleep(1.2)   # 3г: нужни за вол-ранга (УЛТРА) и SMA200
     gdx_d = _yf("GDX", "2y", "1d"); time.sleep(1.2)
     dxy_d = _yf("DX-Y.NYB", "2y", "1d"); time.sleep(1.2); rr = _rates()
     for d in (gold_d, gdx_d, dxy_d):
@@ -524,6 +543,8 @@ def main():
     tr_f = out / "open_trade.json"
     trade = json.loads(tr_f.read_text(encoding="utf-8")) if tr_f.exists() else None
     exit_msgs = []
+    if trade and not trade.get("v2"):    # миграция: старите сделки се превъртат отначало
+        trade["checked"] = trade["opened"]; trade["v2"] = True
     if trade:
         bars = frames.get("5м")                      # 5м барове за проверка на нивата
         trade_obj = trade                            # запазваме референция (mutira се вътре)
@@ -551,18 +572,30 @@ def main():
         trade = None
 
     weekly = _weekly(args.weekly)
-    sig_msg = _sig_msg(board, macro, refs, price, best, stats, args.balance, args.risk, weekly, regime) if actionable else ""
+    sig_msg = _sig_msg(board, macro, refs, price, best, stats, args.balance, args.risk, weekly, regime,
+                       open_trade=trade) if actionable else ""
 
     # === 3) БЕЗ СПАМ за сигнала (изходите винаги се пращат) ===
+    # Ключ БЕЗ score: карта при смяна на посока/клас, не при трептене 5↔6↔7 на някой ТФ.
+    # + 45-мин пауза между картите (смяната на ПОСОКА или провалено пращане я прескачат).
+    # Без това в нервен ден (цена около MA-линия) излизаха стотици карти на ден.
     state_f = out / "last_sent.json"
     last = json.loads(state_f.read_text(encoding="utf-8")) if state_f.exists() else {}
-    key = date + "|" + ";".join(f"{l}:{d}:{t}:{s}" for l, d, s, t, _ in board if t != "weak" and d != "wait")
-    # праща ако: --force, ИЛИ (има посока И (бордът е нов ИЛИ миналото пращане се провали))
-    should_sig = args.force or (bool(actionable) and (last.get("key") != key or not last.get("sent_ok")))
+    key = date + "|" + ";".join(f"{l}:{d}:{t}" for l, d, s, t, _ in board if t != "weak" and d != "wait")
+    mins_since = None
+    if last.get("sent_utc"):
+        try:
+            mins_since = (pd.Timestamp(now_utc) - pd.Timestamp(last["sent_utc"])).total_seconds() / 60
+        except Exception:
+            mins_since = None
+    cool_ok = (mins_since is None or mins_since >= 45
+               or (new_dir is not None and new_dir != last.get("dir") and mins_since >= 15)   # обръщане: мин. 15 мин (анти пинг-понг)
+               or not last.get("sent_ok"))
+    should_sig = args.force or (bool(actionable) and (last.get("key") != key or not last.get("sent_ok")) and cool_ok)
     # РЕ-ВЛИЗАНЕ: сделката приключи (ТП3/СТОП/време), а сигналът още стои →
-    # праща НОВА карта веднага (нов вход по текущата цена) и отваря нова сделка.
+    # нова карта (нов вход по текущата цена) и нова сделка — пак под 45-мин пауза.
     trade_closed = any(k in ("tp3", "sl", "time") for k, _ in exit_msgs)
-    if trade_closed and actionable and trade is None:
+    if trade_closed and actionable and trade is None and cool_ok:
         should_sig = True
 
     # === MA-АЛАРМИ: допълнителни сигнали при отскок/отхвърляне от MA50/MA200 ===
@@ -596,6 +629,8 @@ def main():
         s_dir, s_score, s_tk, s_tn = _resolve(ls_s, ss_s, macro)
         # следене на сребърната сделка
         s_trade = json.loads(s_tr_f.read_text(encoding="utf-8")) if s_tr_f.exists() else None
+        if s_trade and not s_trade.get("v2"):
+            s_trade["checked"] = s_trade["opened"]; s_trade["v2"] = True
         if s_trade:
             s_obj = s_trade
             s_trade, s_events = track_trade(s_trade, s5, s_price, now_utc)
@@ -608,15 +643,25 @@ def main():
             s_trade = None
         s_actionable = s_dir != "wait" and s_tk != "weak"
         s_last = json.loads(s_state_f.read_text(encoding="utf-8")) if s_state_f.exists() else {}
-        s_key = f"{date}|{s_dir}:{s_tk}:{s_score}"
+        s_key = f"{date}|{s_dir}:{s_tk}"            # без score — не трепти, + 45-мин пауза като златото
+        s_mins = None
+        if s_last.get("sent_utc"):
+            try:
+                s_mins = (pd.Timestamp(now_utc) - pd.Timestamp(s_last["sent_utc"])).total_seconds() / 60
+            except Exception:
+                s_mins = None
+        s_cool = (s_mins is None or s_mins >= 45 or (s_dir != s_last.get("dir") and s_mins >= 15)
+                  or not s_last.get("sent_ok"))
         s_closed = any(k.split(":")[1] in ("tp3", "sl", "time") for k, _ in silver_msgs if k.startswith("s-exit"))
-        s_should = s_actionable and (s_last.get("key") != s_key or not s_last.get("sent_ok") or (s_closed and s_trade is None))
+        s_should = s_actionable and s_cool and (s_last.get("key") != s_key or not s_last.get("sent_ok") or (s_closed and s_trade is None))
         if s_should:
             streak_n = regime.get("streaks", {}).get(s_dir, 0)
-            silver_msgs.append(("s-signal", _silver_msg(s_dir, s_score, s_tn, s_tk, s_price, stats, streak_n, args.balance, args.risk)))
-            silver_trade_new = {"direction": s_dir, "entry": round(s_price, 2), "opened": now_utc, "checked": now_utc,
-                                "levels": _levels_silver(round(s_price, 2), s_dir), "hit": {}, "status": "open",
-                                "tier": s_tk, "date": date, "sym": "XAGUSD"}
+            silver_msgs.append(("s-signal", _silver_msg(s_dir, s_score, s_tn, s_tk, s_price, stats, streak_n, args.balance, args.risk,
+                                                        open_trade=s_trade)))
+            if s_trade is None:      # НОВА сделка само ако няма отворена — иначе опресняването я презаписваше!
+                silver_trade_new = {"direction": s_dir, "entry": round(s_price, 2), "opened": now_utc, "checked": now_utc,
+                                    "levels": _levels_silver(round(s_price, 2), s_dir), "hit": {}, "status": "open", "v2": True,
+                                    "tier": s_tk, "date": date, "sym": "XAGUSD"}
         print(f"  сребро: {s_dir} {s_score}/8 {s_tk} · ${s_price:,.2f}")
         # запис на сребърното състояние (сделка) — ако не се праща ново, пази старата
         if s_trade:
@@ -634,7 +679,8 @@ def main():
         for kind, m in silver_msgs:
             st_s = _send(m); statuses.append(f"{kind}={st_s}")
             if kind == "s-signal" and st_s.startswith("SENT"):
-                s_state_f.write_text(json.dumps({"key": s_key, "date": date, "sent_ok": True}), encoding="utf-8")
+                s_state_f.write_text(json.dumps({"key": s_key, "date": date, "sent_ok": True,
+                                                 "dir": s_dir, "sent_utc": now_utc}), encoding="utf-8")
                 if silver_trade_new:
                     s_tr_f.write_text(json.dumps(silver_trade_new, ensure_ascii=False), encoding="utf-8")
                     statuses.append("s-trade=OPENED")
@@ -649,10 +695,11 @@ def main():
         if sig_msg and should_sig:
             st_send = _send(sig_msg); ok = st_send.startswith("SENT")
             statuses.append(f"signal={st_send}")
-            state_f.write_text(json.dumps({"key": key, "date": date, "sent_ok": ok}), encoding="utf-8")
+            state_f.write_text(json.dumps({"key": key, "date": date, "sent_ok": ok,
+                                           "dir": new_dir, "sent_utc": now_utc}), encoding="utf-8")
             if ok and trade is None and new_dir:    # сделка се отваря само при УСПЕШНО пращане
                 trade = {"direction": new_dir, "entry": round(price, 2), "opened": now_utc, "checked": now_utc,
-                         "levels": _levels(round(price, 2), new_dir), "hit": {}, "status": "open",
+                         "levels": _levels(round(price, 2), new_dir), "hit": {}, "status": "open", "v2": True,
                          "tier": best[3], "date": date}
                 statuses.append("trade=OPENED")
         elif sig_msg:
