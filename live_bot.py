@@ -204,7 +204,7 @@ def _levels_silver(entry, direction):
 
 # ---------- съобщения ----------
 def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=None, regime=None,
-             open_trade=None, bar_ts=None, reentry=False):
+             open_trade=None, bar_ts=None, reentry=False, spot=None, fast=None):
     direction = best[1]; tier_key = best[3]; tname = best[4]
     dcol = "🟢" if direction == "long" else "🔴"
     dword = "LONG ⬆️" if direction == "long" else "SHORT ⬇️"
@@ -217,8 +217,12 @@ def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=N
     risk_amt = balance * risk_pct / 100.0; oz = risk_amt / SL_D; lots = round(oz / 100.0, 3)
     when = f"цена от бар <b>{_sofia(str(bar_ts))} София</b>" if bar_ts is not None else "цена"
     L = [f"{dcol} <b>AERO ЗЛАТО · {tname} {dword}</b> {dcol}", "━━━━━━━━━━━━━━━━━━",
-         f"🥇 <b>XAUUSD</b> · <code>${price:,.2f}</code> <i>({when})</i> · 🕐 пратено {_sofia()}",
-         "ℹ️ <i>Yahoo дава фючърса GC=F с ~10-15 мин закъснение и $3-8 над брокерския спот → входът при ТЕБ е ТЕКУЩАТА ти цена; ТП/СТОП смятай като ОТМЕСТВАНИЯ в пипсове от нея</i>", ""]
+         f"🥇 <b>XAUUSD</b> · <code>${price:,.2f}</code> <i>({when})</i> · 🕐 пратено {_sofia()}"]
+    if spot:
+        L.append(f"💱 <b>СПОТ СЕГА (реално време):</b> <code>${spot['mid']:,.2f}</code>")
+    L += ["ℹ️ <i>Yahoo дава фючърса GC=F с ~10-15 мин закъснение и $3-8 над брокерския спот → входът при ТЕБ е ТЕКУЩАТА ти цена; ТП/СТОП смятай като ОТМЕСТВАНИЯ в пипсове от нея</i>", ""]
+    if fast:
+        L.append(f"⚡ <b>БЪРЗ ПАЗАР:</b> ±${fast:.0f} за 10 мин — нивата остаряват за минути! Лимитирана поръчка, не гони пазара.")
     if reentry:
         L.append("🔁 <b>РЕ-ВЛИЗАНЕ</b> — предишната сделка приключи, но сигналът още стои → нов вход.")
     if open_trade:
@@ -231,6 +235,11 @@ def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=N
          f"🎯 <b>ТП2</b> (120п):  <code>${lv['tp2']:,.2f}</code>  <i>{th.get('tp2','?')}%</i>{mk('tp2')}",
          f"🏆 <b>ТП3</b> (200п):  <code>${lv['tp3']:,.2f}</code>  <i>{th.get('tp3','?')}%</i>{mk('tp3')}",
          f"🛑 <b>СТОП</b> (200п): <code>${lv['sl']:,.2f}</code>", ""]
+    if spot and not open_trade:
+        sv = _levels(spot["mid"], direction)
+        L += [f"📲 <b>ТВОИТЕ нива, ако влизаш СЕГА от спот ${spot['mid']:,.2f}:</b>",
+              f"    ТП1 <code>{sv['tp1']:,.2f}</code> · ТП2 <code>{sv['tp2']:,.2f}</code> · ТП3 <code>{sv['tp3']:,.2f}</code> · СТОП <code>{sv['sl']:,.2f}</code>",
+              "    <i>Сложи ТП/СТОП поръчките ВЕДНАГА при входа — брокерът ги изпълнява сам, без да чака бота.</i>", ""]
     spd = stats.get("speed", {}).get(direction, {})
     if spd.get("n"):
         L.append(f"⏱️ <i>Скорост (историч.): ТП1 удрян {spd['tp1_rate']}% · медиана ~{spd['median_h']:.0f}ч · {spd['within_1d_pct']}% до 1 ден</i>")
@@ -297,12 +306,13 @@ def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=N
     return "\n".join(L)
 
 
-def _exit_msg(kind, tr, price_hit):
+def _exit_msg(kind, tr, price_hit, spot=None):
     """Съобщение за изход/прогрес на сделката (злато ИЛИ сребро).
     kind: tp1/tp2/tp3/sl/flip/time. Сумите се смятат от нивата на самата сделка."""
     d = tr["direction"].upper(); e = tr["entry"]
     sym = tr.get("sym", "XAUUSD"); ico = "🥇" if sym == "XAUUSD" else "🥈"
     is_gold = sym == "XAUUSD"
+    spot_ln = [f"💱 <i>Спот сега (реално време): ${spot['mid']:,.2f}</i>"] if spot else []
     opened = f"{tr['opened'][:10]} {_sofia(tr['opened'])} София"
     def money(dol):
         return (f"+{dol/PIP:,.0f} пипса (+${dol:.2f}/oz)" if is_gold else f"+${dol:.2f}/oz") if dol >= 0 else \
@@ -319,7 +329,7 @@ def _exit_msg(kind, tr, price_hit):
             L.append("💡 <i>2/3 прибрани · остатъкът гони ТП3</i>")
         else:
             L.append("🎉 <i>Сделката е ЗАТВОРЕНА изцяло на пълния тейк. Браво!</i>")
-        return "\n".join(L)
+        return "\n".join(L + spot_ln)
     if kind == "sl":
         dol = abs(tr["levels"]["sl"] - e)
         L = [f"🛑 СТОП ЛОС", "━━━━━━━━━━━━━━━━━━",
@@ -329,7 +339,7 @@ def _exit_msg(kind, tr, price_hit):
         if hits:
             L.append(f"ℹ️ <i>Преди стопа удари {', '.join(h.upper() for h in hits)} — частичните тейкове смекчават загубата</i>")
         L.append("📚 <i>Стопът е част от играта. Дисциплината печели дългосрочно.</i>")
-        return "\n".join(L)
+        return "\n".join(L + spot_ln)
     head = "🔄 ПОСОКАТА СЕ ОБЪРНА — затваряме" if kind == "flip" else "⏰ ВРЕМЕВИ ИЗХОД (21 търг. дни)"
     pl = (price_hit - e) * (1 if tr["direction"] == "long" else -1)
     L = [f"{head} {d}" if kind == "flip" else head, "━━━━━━━━━━━━━━━━━━",
@@ -337,7 +347,7 @@ def _exit_msg(kind, tr, price_hit):
          f"{'💚' if pl >= 0 else '💔'} Резултат: <b>{money(pl) if pl >= 0 else money(pl)}</b>"]
     if kind == "flip":
         L.append("➡️ <i>Нов сигнал в обратната посока идва отделно</i>")
-    return "\n".join(L)
+    return "\n".join(L + spot_ln)
 
 
 def _weekly(path):
@@ -392,7 +402,7 @@ def _weekly_lines(weekly, direction):
 
 
 def _silver_msg(direction, score, tname, tier_key, price, stats, streak_n, balance, risk_pct,
-                open_trade=None, bar_ts=None, reentry=False):
+                open_trade=None, bar_ts=None, reentry=False, spot=None):
     """🥈 СРЕБРО (XAGUSD) — втори инструмент, дневно-задвижван сигнал."""
     dcol = "🟢" if direction == "long" else "🔴"
     dword = "LONG ⬆️" if direction == "long" else "SHORT ⬇️"
@@ -403,8 +413,10 @@ def _silver_msg(direction, score, tname, tier_key, price, stats, streak_n, balan
     risk_amt = balance * risk_pct / 100.0; oz = risk_amt / S_SL
     when = f"цена от бар <b>{_sofia(str(bar_ts))} София</b>" if bar_ts is not None else "цена"
     L = [f"{dcol} <b>🥈 СРЕБРО · {tname} {dword}</b> {dcol}", "━━━━━━━━━━━━━━━━━━",
-         f"<b>XAGUSD</b> · <code>${price:,.2f}</code> <i>({when})</i> · 🕐 пратено {_sofia()}",
-         "ℹ️ <i>Yahoo дава фючърса SI=F с ~10-15 мин закъснение → входът при теб е ТЕКУЩАТА ти цена, нивата са отмествания</i>", ""]
+         f"<b>XAGUSD</b> · <code>${price:,.2f}</code> <i>({when})</i> · 🕐 пратено {_sofia()}"]
+    if spot:
+        L.append(f"💱 <b>СПОТ СЕГА (реално време):</b> <code>${spot['mid']:,.3f}</code>")
+    L += ["ℹ️ <i>Yahoo дава фючърса SI=F с ~10-15 мин закъснение → входът при теб е ТЕКУЩАТА ти цена, нивата са отмествания</i>", ""]
     if reentry:
         L.append("🔁 <b>РЕ-ВЛИЗАНЕ</b> — предишната сделка приключи, но сигналът още стои → нов вход.")
     if open_trade:
@@ -416,7 +428,12 @@ def _silver_msg(direction, score, tname, tier_key, price, stats, streak_n, balan
     L += [f"🎯 <b>ТП1:</b>  <code>${lv['tp1']:,.2f}</code>  <i>(±${S_TPS[0]:.2f})</i>",
          f"🎯 <b>ТП2:</b>  <code>${lv['tp2']:,.2f}</code>",
          f"🏆 <b>ТП3:</b>  <code>${lv['tp3']:,.2f}</code>  <i>(±${S_TPS[2]:.2f})</i>",
-         f"🛑 <b>СТОП:</b> <code>${lv['sl']:,.2f}</code>", "",
+         f"🛑 <b>СТОП:</b> <code>${lv['sl']:,.2f}</code>", ""]
+    if spot and not open_trade:
+        svl = _levels_silver(spot["mid"], direction)
+        L += [f"📲 <b>ТВОИТЕ нива от спот ${spot['mid']:,.3f}:</b> ТП1 <code>{svl['tp1']:,.2f}</code> · ТП2 <code>{svl['tp2']:,.2f}</code> · ТП3 <code>{svl['tp3']:,.2f}</code> · СТОП <code>{svl['sl']:,.2f}</code>",
+              "    <i>Сложи ТП/СТОП поръчките веднага при входа — брокерът ги изпълнява сам.</i>", ""]
+    L += [
          f"📊 Клас: <b>{tname}</b> ({score}/8) · исторически <b>{st.get('win','?')}%</b> · {st.get('net','?')}$/oz (22г)"]
     if tier_key == "premium" and 1 <= streak_n <= 3 and sv.get("fresh", {}).get("n"):
         f = sv["fresh"]
@@ -454,6 +471,28 @@ def _ma_alert_msg(direction, ma_name, price, mb, macro):
     L += ["━━━━━━━━━━━━━━━━━━",
           "⚠️ <i>Дневен сетъп · бичи backtest · хартия/малък размер · не е фин. съвет</i>"]
     return "\n".join(L)
+
+
+def _spot(instr="XAU/USD"):
+    """💱 СПОТ цена в РЕАЛНО ВРЕМЕ (Swissquote публичен фийд, без ключ, безплатно).
+    Убива 10-те минути закъснение на Yahoo за входните нива. None при неуспех."""
+    import time as _t
+    try:
+        url = "https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/" + instr   # наклонената черта остава буквална!
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=8) as r:
+            data = json.loads(r.read().decode())
+        best = None; fresh = False
+        for plat in data:
+            if abs(_t.time() * 1000 - plat.get("ts", 0)) < 15 * 60 * 1000:
+                fresh = True
+            for p in plat.get("spreadProfilePrices", []):
+                if best is None or (p["ask"] - p["bid"]) < (best[1] - best[0]):
+                    best = (p["bid"], p["ask"])
+        if best is None or not fresh:
+            return None
+        return {"bid": best[0], "ask": best[1], "mid": round((best[0] + best[1]) / 2, 3)}
+    except Exception:
+        return None
 
 
 def _send(text):
@@ -547,6 +586,18 @@ def main():
     date = str(gold_d.index[-1].date())
     stats = json.loads(Path(args.stats).read_text(encoding="utf-8")) if Path(args.stats).exists() else {}
 
+    # 💱 СПОТ в реално време (Swissquote, безплатно) — убива закъснението на Yahoo за нивата
+    spot_g = _spot("XAU/USD"); spot_s = _spot("XAG/USD")
+    print(f"  спот реално време: злато {spot_g['mid'] if spot_g else '—'} · сребро {spot_s['mid'] if spot_s else '—'}")
+    # ⚡ бърз пазар: колко се е движила цената за последните ~10 минути (по 1м барове)
+    fast_g = None
+    try:
+        if fine is not None and len(fine) > 11:
+            d10 = abs(float(fine["Close"].iloc[-1]) - float(fine["Close"].iloc[-11]))
+            fast_g = round(d10, 1) if d10 >= 10 else None
+    except Exception:
+        fast_g = None
+
     # === 1) СЛЕДЕНЕ на отворената сделка (изходни съобщения — винаги, без no-spam) ===
     tr_f = out / "open_trade.json"
     trade = json.loads(tr_f.read_text(encoding="utf-8")) if tr_f.exists() else None
@@ -558,7 +609,7 @@ def main():
         trade_obj = trade                            # запазваме референция (mutira се вътре)
         trade, events = track_trade(trade, bars, price, now_utc)
         for kind, p in events:
-            exit_msgs.append((kind, _exit_msg(kind, trade_obj, p)))
+            exit_msgs.append((kind, _exit_msg(kind, trade_obj, p, spot=spot_g)))
 
     # === 2) СИГНАЛ на 7-те ТФ ===
     board = []
@@ -576,14 +627,14 @@ def main():
 
     # посоката се обърна while сделка отворена → затваряме по пазар
     if trade and new_dir and trade["direction"] != new_dir:
-        exit_msgs.append(("flip", _exit_msg("flip", trade, price)))
+        exit_msgs.append(("flip", _exit_msg("flip", trade, price, spot=spot_g)))
         trade = None
 
     weekly = _weekly(args.weekly)
     bar_ts = fine.index[-1] if fine is not None else None      # часът на бара, дал цената (за честност в картата)
     reentry = trade is None and any(k in ("tp3", "sl", "time") for k, _ in exit_msgs)
     sig_msg = _sig_msg(board, macro, refs, price, best, stats, args.balance, args.risk, weekly, regime,
-                       open_trade=trade, bar_ts=bar_ts, reentry=reentry) if actionable else ""
+                       open_trade=trade, bar_ts=bar_ts, reentry=reentry, spot=spot_g, fast=fast_g) if actionable else ""
 
     # === 3) БЕЗ СПАМ за сигнала (изходите винаги се пращат) ===
     # Ключ БЕЗ score: карта при смяна на посока/клас, не при трептене 5↔6↔7 на някой ТФ.
@@ -645,11 +696,11 @@ def main():
             s_obj = s_trade
             s_trade, s_events = track_trade(s_trade, s5, s_price, now_utc)
             for kind, p in s_events:
-                silver_msgs.append((f"s-exit:{kind}", _exit_msg(kind, s_obj, p)))
+                silver_msgs.append((f"s-exit:{kind}", _exit_msg(kind, s_obj, p, spot=spot_s)))
         else:
             s_events = []
         if s_trade and s_dir not in ("wait",) and s_trade["direction"] != s_dir and s_tk != "weak":
-            silver_msgs.append(("s-exit:flip", _exit_msg("flip", s_trade, s_price)))
+            silver_msgs.append(("s-exit:flip", _exit_msg("flip", s_trade, s_price, spot=spot_s)))
             s_trade = None
         s_actionable = s_dir != "wait" and s_tk != "weak"
         s_last = json.loads(s_state_f.read_text(encoding="utf-8")) if s_state_f.exists() else {}
@@ -668,7 +719,7 @@ def main():
             streak_n = regime.get("streaks", {}).get(s_dir, 0)
             silver_msgs.append(("s-signal", _silver_msg(s_dir, s_score, s_tn, s_tk, s_price, stats, streak_n, args.balance, args.risk,
                                                         open_trade=s_trade, bar_ts=s5.index[-1],
-                                                        reentry=(s_trade is None and s_closed))))
+                                                        reentry=(s_trade is None and s_closed), spot=spot_s)))
             if s_trade is None:      # НОВА сделка само ако няма отворена — иначе опресняването я презаписваше!
                 silver_trade_new = {"direction": s_dir, "entry": round(s_price, 2), "opened": now_utc, "checked": now_utc,
                                     "levels": _levels_silver(round(s_price, 2), s_dir), "hit": {}, "status": "open", "v2": True,
