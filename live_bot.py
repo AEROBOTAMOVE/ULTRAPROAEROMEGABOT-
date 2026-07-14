@@ -203,7 +203,8 @@ def _levels_silver(entry, direction):
 
 
 # ---------- съобщения ----------
-def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=None, regime=None, open_trade=None):
+def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=None, regime=None,
+             open_trade=None, bar_ts=None, reentry=False):
     direction = best[1]; tier_key = best[3]; tname = best[4]
     dcol = "🟢" if direction == "long" else "🔴"
     dword = "LONG ⬆️" if direction == "long" else "SHORT ⬇️"
@@ -214,9 +215,12 @@ def _sig_msg(board, macro, refs, price, best, stats, balance, risk_pct, weekly=N
     def mk(k): return "  ✅ <b>ударен</b>" if hit.get(k) else ""
     th = stats.get("tp_hits", {}).get(direction, {}).get(tier_key, {})
     risk_amt = balance * risk_pct / 100.0; oz = risk_amt / SL_D; lots = round(oz / 100.0, 3)
+    when = f"цена от бар <b>{_sofia(str(bar_ts))} София</b>" if bar_ts is not None else "цена"
     L = [f"{dcol} <b>AERO ЗЛАТО · {tname} {dword}</b> {dcol}", "━━━━━━━━━━━━━━━━━━",
-         f"🥇 <b>XAUUSD</b> · сега <code>${price:,.2f}</code> · 🕐 {_sofia()} София",
-         "ℹ️ <i>Цена = фючърс GC=F (~10-15 мин закъснение; спотът при брокера обичайно е с $3-8 по-нисък) → смятай ТП/СТОП като ОТМЕСТВАНИЯ в пипсове от ТВОЯТА цена на входа</i>", ""]
+         f"🥇 <b>XAUUSD</b> · <code>${price:,.2f}</code> <i>({when})</i> · 🕐 пратено {_sofia()}",
+         "ℹ️ <i>Yahoo дава фючърса GC=F с ~10-15 мин закъснение и $3-8 над брокерския спот → входът при ТЕБ е ТЕКУЩАТА ти цена; ТП/СТОП смятай като ОТМЕСТВАНИЯ в пипсове от нея</i>", ""]
+    if reentry:
+        L.append("🔁 <b>РЕ-ВЛИЗАНЕ</b> — предишната сделка приключи, но сигналът още стои → нов вход.")
     if open_trade:
         op = f"{open_trade['opened'][:10]} {_sofia(open_trade['opened'])} София"
         L += [f"📌 <b>СЪЩИЯТ СИГНАЛ ПРОДЪЛЖАВА</b> — дневно опресняване, <b>НЕ нов вход</b>.",
@@ -387,7 +391,8 @@ def _weekly_lines(weekly, direction):
         return []
 
 
-def _silver_msg(direction, score, tname, tier_key, price, stats, streak_n, balance, risk_pct, open_trade=None):
+def _silver_msg(direction, score, tname, tier_key, price, stats, streak_n, balance, risk_pct,
+                open_trade=None, bar_ts=None, reentry=False):
     """🥈 СРЕБРО (XAGUSD) — втори инструмент, дневно-задвижван сигнал."""
     dcol = "🟢" if direction == "long" else "🔴"
     dword = "LONG ⬆️" if direction == "long" else "SHORT ⬇️"
@@ -396,9 +401,12 @@ def _silver_msg(direction, score, tname, tier_key, price, stats, streak_n, balan
     sv = stats.get("silver", {}).get(direction, {})
     st = sv.get(tier_key, {})
     risk_amt = balance * risk_pct / 100.0; oz = risk_amt / S_SL
+    when = f"цена от бар <b>{_sofia(str(bar_ts))} София</b>" if bar_ts is not None else "цена"
     L = [f"{dcol} <b>🥈 СРЕБРО · {tname} {dword}</b> {dcol}", "━━━━━━━━━━━━━━━━━━",
-         f"<b>XAGUSD</b> · сега <code>${price:,.2f}</code> · 🕐 {_sofia()} София",
-         "ℹ️ <i>Цена = фючърс SI=F (~10-15 мин закъснение) → ползвай отместванията от твоята цена</i>", ""]
+         f"<b>XAGUSD</b> · <code>${price:,.2f}</code> <i>({when})</i> · 🕐 пратено {_sofia()}",
+         "ℹ️ <i>Yahoo дава фючърса SI=F с ~10-15 мин закъснение → входът при теб е ТЕКУЩАТА ти цена, нивата са отмествания</i>", ""]
+    if reentry:
+        L.append("🔁 <b>РЕ-ВЛИЗАНЕ</b> — предишната сделка приключи, но сигналът още стои → нов вход.")
     if open_trade:
         op = f"{open_trade['opened'][:10]} {_sofia(open_trade['opened'])} София"
         L += [f"📌 <b>СЪЩИЯТ СИГНАЛ ПРОДЪЛЖАВА</b> — опресняване, <b>НЕ нов вход</b>.",
@@ -572,8 +580,10 @@ def main():
         trade = None
 
     weekly = _weekly(args.weekly)
+    bar_ts = fine.index[-1] if fine is not None else None      # часът на бара, дал цената (за честност в картата)
+    reentry = trade is None and any(k in ("tp3", "sl", "time") for k, _ in exit_msgs)
     sig_msg = _sig_msg(board, macro, refs, price, best, stats, args.balance, args.risk, weekly, regime,
-                       open_trade=trade) if actionable else ""
+                       open_trade=trade, bar_ts=bar_ts, reentry=reentry) if actionable else ""
 
     # === 3) БЕЗ СПАМ за сигнала (изходите винаги се пращат) ===
     # Ключ БЕЗ score: карта при смяна на посока/клас, не при трептене 5↔6↔7 на някой ТФ.
@@ -657,7 +667,8 @@ def main():
         if s_should:
             streak_n = regime.get("streaks", {}).get(s_dir, 0)
             silver_msgs.append(("s-signal", _silver_msg(s_dir, s_score, s_tn, s_tk, s_price, stats, streak_n, args.balance, args.risk,
-                                                        open_trade=s_trade)))
+                                                        open_trade=s_trade, bar_ts=s5.index[-1],
+                                                        reentry=(s_trade is None and s_closed))))
             if s_trade is None:      # НОВА сделка само ако няма отворена — иначе опресняването я презаписваше!
                 silver_trade_new = {"direction": s_dir, "entry": round(s_price, 2), "opened": now_utc, "checked": now_utc,
                                     "levels": _levels_silver(round(s_price, 2), s_dir), "hit": {}, "status": "open", "v2": True,
