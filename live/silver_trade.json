@@ -1,1 +1,1 @@
-{"direction": "short", "entry": 56.88, "opened": "2026-07-16T08:25", "checked": "2026-07-16 12:45:00", "levels": {"tp1": 56.68, "tp2": 56.56, "tp3": 56.34, "sl": 57.42}, "hit": {"tp1": true, "tp2": true}, "status": "open", "v2": true, "tier": "premium", "date": "2026-07-16", "sym": "XAGUSD"}
+{"direction": "short", "entry": 56.35, "opened": "2026-07-16T13:01", "checked": "2026-07-16T13:01", "levels": {"tp1": 56.15, "tp2": 56.03, "tp3": 55.81, "sl": 56.89}, "hit": {}, "status": "open", "v2": true, "tier": "premium", "date": "2026-07-16", "sym": "XAGUSD"}
